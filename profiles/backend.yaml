@@ -1,0 +1,27 @@
+name: backend
+description: Backend/API-focused profile (same sources as default)
+
+sources:
+  - sources/global-instructions.md
+  - sources/code-style.md
+  - sources/git-conventions.md
+
+targets:
+  claude:
+    global: ~/.claude/CLAUDE.md
+    project: ./CLAUDE.md
+  cursor:
+    project: .cursor/rules/base.md
+  codex:
+    global: ~/.codex/instructions.md
+    project: ./AGENTS.md
+  copilot:
+    project: .github/copilot-instructions.md
+  windsurf:
+    project: .windsurfrules
+
+mcps:
+  required:
+    - filesystem
+  optional:
+    - github

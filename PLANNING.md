@@ -84,8 +84,6 @@ devsync/
 │   ├── global-instructions.md     # Base AI instructions shared across tools
 │   ├── code-style.md              # Coding standards section
 │   └── git-conventions.md         # Git workflow section
-└── templates/
-    └── new-project.yaml           # Scaffold template for bootstrapping repos
 ```
 
 ---
@@ -94,8 +92,8 @@ devsync/
 
 Profiles define which source files map to which tool targets. There are two levels:
 
-- **Global default** (`~/.devsync/profile.yaml`) — applies to all machines
-- **Per-project override** (`.devsync.yaml` in project root, gitignored or committed depending on team preference)
+- **Global default** (`~/.devsync/config.yaml`, key: `active_profile`) — which named profile is active; applies to all machines
+- **Per-project override** (`.devsync.yaml` in project root) — deep-merged on top of the active profile using the same schema. Not added to `.gitignore` by default; teams may commit it for shared config or ignore it for personal overrides.
 
 ### Profile Schema
 
@@ -150,8 +148,10 @@ This makes `devsync sync` idempotent — running it twice won't duplicate conten
 
 ```
 ⚠  Conflict in .cursor/rules/base.md → "## Code Style"
-   [k] keep existing   [o] overwrite   [m] merge manually   [s] skip file
+   [k] keep existing   [o] overwrite   [s] skip file   [e] open in $EDITOR
 ```
+
+After choosing `[e]`, devsync opens the target file in `$EDITOR` and waits. When the editor exits, the user re-runs `devsync sync` to continue with remaining conflicts.
 
 ---
 
@@ -321,9 +321,23 @@ Each issue can be fixed interactively — devsync will walk through each one wit
 | Codex       | `%USERPROFILE%\.codex\`                             | `~/.codex/`              | `~/.codex/`                                |
 | devsync env | `%USERPROFILE%\.devsync\.env`                       | `~/.devsync/.env`        | `~/.devsync/.env`                          |
 
-WSL note: When Claude Desktop is installed on the Windows side, devsync running in WSL must translate paths using `/mnt/c/Users/...`.
+WSL note: devsync always uses `~/` paths when running in WSL. It does not write to Windows-side paths. Users running WSL should have Claude Desktop installed and configured on the Linux side.
 
 ---
+
+## MCP Config Injection
+
+The installer merges the `mcpServers` key into **both** `claude_desktop_config.json` (Claude Desktop) and `~/.claude.json` (Claude Code). Both files receive the same MCP entries. Neither file is ever overwritten wholesale — only the `mcpServers` key is touched.
+
+## Audit Heuristics
+
+**Meaningful content:** A config file is considered meaningful if it contains at least 1 markdown heading and 50 non-whitespace characters. Files that are empty or contain only boilerplate are flagged as `suboptimal`.
+
+**Outdated detection:** A `<!-- devsync-hash: <sha256> -->` comment is written into the header of every file devsync creates or syncs. At audit time, the stored hash is compared against the current hash of the corresponding source file in `~/.devsync/sources/`. A mismatch means the source has changed since the last sync. Mtime is not used.
+
+## Init Behavior
+
+`devsync init` copies bundled `sources/`, `registry/`, and `profiles/` into `~/.devsync/` **only for files that do not already exist**. Existing files are never overwritten, preserving user customizations. To reset to defaults, users must manually delete the relevant files before re-running init.
 
 ## Secrets Handling
 

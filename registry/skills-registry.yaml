@@ -1,0 +1,33 @@
+# Claude.ai toggleable features — reference for devsync skills checklist.
+# Navigation notes help users find each setting; may change with Claude.ai UI updates.
+
+skills:
+  - id: web_search
+    name: Web Search
+    description: Allows Claude to search the web in real time
+    recommended: true
+    notes: "Settings → Features → Web Search"
+
+  - id: memory
+    name: Memory
+    description: Claude remembers context across conversations
+    recommended: true
+    notes: "Settings → Memory → Enable"
+
+  - id: code_execution
+    name: Code Execution & File Creation
+    description: Run code and produce downloadable files
+    recommended: true
+    notes: "Settings → Features → Code Execution"
+
+  - id: artifacts
+    name: Artifacts
+    description: Render UI components, diagrams, markdown inline
+    recommended: true
+    notes: "Settings → Features → Artifacts"
+
+  - id: past_chats
+    name: Search Past Chats
+    description: Claude can reference previous conversations
+    recommended: true
+    notes: "Settings → Features → Search Past Chats"

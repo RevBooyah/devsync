@@ -1,0 +1,91 @@
+# devsync MCP registry — source of truth for MCP install/config.
+# Filtered by platform (win32, wsl, darwin). Substitute {{VAR}} from ~/.devsync/.env.
+
+mcps:
+  - id: filesystem
+    name: Filesystem MCP
+    package: "@modelcontextprotocol/server-filesystem"
+    install: npm install -g @modelcontextprotocol/server-filesystem
+    config:
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "{{ALLOWED_PATHS}}"]
+    vars:
+      ALLOWED_PATHS:
+        prompt: "Enter allowed paths (comma separated)"
+        default: "~/projects"
+    tags: [core, files]
+    recommended: true
+    platforms: [win32, wsl, darwin]
+
+  - id: todoist
+    name: Todoist MCP
+    package: "todoist-mcp"
+    install: npm install -g todoist-mcp
+    config:
+      command: npx
+      args: ["-y", "todoist-mcp"]
+      env:
+        TODOIST_API_KEY: "{{TODOIST_API_KEY}}"
+    vars:
+      TODOIST_API_KEY:
+        prompt: "Enter your Todoist API key"
+        secret: true
+    tags: [productivity]
+    recommended: true
+    platforms: [win32, wsl, darwin]
+
+  - id: windows-mcp
+    name: Windows MCP
+    package: "windows-mcp"
+    install: npm install -g windows-mcp
+    config:
+      command: npx
+      args: ["-y", "windows-mcp"]
+    tags: [system, windows]
+    recommended: false
+    platforms: [win32, wsl]
+
+  - id: github
+    name: GitHub MCP
+    package: "@modelcontextprotocol/server-github"
+    install: npm install -g @modelcontextprotocol/server-github
+    config:
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-github"]
+      env:
+        GITHUB_PERSONAL_ACCESS_TOKEN: "{{GITHUB_PAT}}"
+    vars:
+      GITHUB_PAT:
+        prompt: "Enter your GitHub Personal Access Token"
+        secret: true
+    tags: [git, code]
+    recommended: true
+    platforms: [win32, wsl, darwin]
+
+  - id: brave-search
+    name: Brave Search MCP
+    package: "@modelcontextprotocol/server-brave-search"
+    install: npm install -g @modelcontextprotocol/server-brave-search
+    config:
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-brave-search"]
+      env:
+        BRAVE_API_KEY: "{{BRAVE_API_KEY}}"
+    vars:
+      BRAVE_API_KEY:
+        prompt: "Enter your Brave Search API key"
+        secret: true
+    tags: [search]
+    recommended: false
+    platforms: [win32, wsl, darwin]
+
+  - id: sequential-thinking
+    name: Sequential Thinking MCP
+    package: "@modelcontextprotocol/server-sequential-thinking"
+    install: npm install -g @modelcontextprotocol/server-sequential-thinking
+    config:
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    tags: [reasoning]
+    recommended: false
+    platforms: [win32, wsl, darwin]

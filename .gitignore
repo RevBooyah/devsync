@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Local overrides (keep in .gitignore per project design)
+*.local.yaml
+*.local.yml
+
+# Logs and debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor backup/swap
+*~
+*.un~
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+# Build output (if added later)
+dist/
+build/
+*.tsbuildinfo

@@ -25,6 +25,7 @@ Work through phases in order. Each phase should be fully functional before start
 - [ ] Create `lib/core/env.js` — load `~/.devsync/.env`, prompt + save missing vars
 - [ ] Add `.gitignore` (node_modules, .env files, *.local.yaml)
 - [ ] Add `README.md` skeleton
+- [ ] Create stub `lib/tui/Dashboard.jsx` — prints system summary (active profile, data dir path, list of available commands) without launching a full TUI; replaced with full implementation in Phase 6
 
 ### Acceptance criteria
 - `devsync --help` lists all commands
@@ -44,11 +45,11 @@ Work through phases in order. Each phase should be fully functional before start
 - [ ] Create `lib/mcp/installer.js`:
   - Check if package already installed globally (`npm list -g`)
   - Run install command via `execa`
-  - Inject config block into `claude_desktop_config.json` (non-destructively — merge, don't overwrite)
+  - Inject config block into **both** `claude_desktop_config.json` (Claude Desktop) and `~/.claude.json` (Claude Code) — merge `mcpServers` key only, never overwrite either file wholesale
   - Substitute `{{VAR_NAME}}` placeholders from `.env` or prompt user
 - [ ] Create `lib/mcp/validator.js`:
-  - Read current `claude_desktop_config.json`
-  - For each configured MCP, attempt to ping it (spawn process, send MCP initialize handshake)
+  - Read both `claude_desktop_config.json` and `~/.claude.json`
+  - For each configured MCP, attempt to ping it: spawn the process, send a JSON-RPC `initialize` request (`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"devsync","version":"1.0.0"}}}`), and expect a valid `result` response. Any error or timeout = unhealthy.
   - Report status: running / misconfigured / not installed
 - [ ] Create `lib/tui/MCPManager.jsx` — Ink component:
   - List all registry MCPs with install status
@@ -82,7 +83,8 @@ Work through phases in order. Each phase should be fully functional before start
   - Return: merged content + list of conflicts
 - [ ] Create `lib/tui/ConflictPrompt.jsx` — per-conflict resolution UI:
   - Show diff of conflicting section
-  - Options: keep / overwrite / skip file / open in editor
+  - Options: `[k] keep` / `[o] overwrite` / `[s] skip file` / `[e] open in $EDITOR`
+  - For `[e]`: open target file in `$EDITOR`, wait for exit, then exit devsync with a message to re-run `devsync sync` to continue
 - [ ] Wire `devsync sync` to profile loader → merge engine → conflict prompt → write files
 - [ ] Support per-project override via `.devsync.yaml` in project root
 
@@ -166,7 +168,7 @@ Work through phases in order. Each phase should be fully functional before start
   - `devsync profile use <name>` — switch active profile globally
   - `devsync profile create` — wizard to create new profile
   - `devsync profile show` — show current profile config
-- [ ] Store active profile selection in `~/.devsync/config.yaml`
+- [ ] Store active profile selection in `~/.devsync/config.yaml` (key: `active_profile`)
 - [ ] Add `--profile <name>` flag to `devsync sync` and `devsync audit`
 
 ### Acceptance criteria
@@ -187,7 +189,7 @@ Work through phases in order. Each phase should be fully functional before start
   - Profile system explanation
   - How to add your own MCPs to the registry
   - How to contribute source files / profiles back
-- [ ] Add `devsync update` command — pull latest registry from upstream git repo
+- [ ] Add `devsync update` command — runs `npm update -g devsync` to pull the latest package (the npm package is the upstream source of truth), then copies any new registry/profile files from the updated bundle into `~/.devsync/` without overwriting existing user-modified files
 - [ ] Add `--dry-run` flag to `sync` and `init` — show what would change without writing
 - [ ] Add `--verbose` flag globally
 - [ ] Error handling audit — every file write, npm exec, and config parse should have a clear error message
@@ -199,7 +201,7 @@ Work through phases in order. Each phase should be fully functional before start
 
 ## Key Design Rules (remind Claude Code throughout)
 
-1. **Never overwrite** `claude_desktop_config.json` wholesale — always merge the `mcpServers` key only
+1. **Never overwrite** `claude_desktop_config.json` or `~/.claude.json` wholesale — always merge the `mcpServers` key only, into both
 2. **Never commit secrets** — `.env` files and any file containing `{{VAR_NAME}}` substituted values must be gitignored
 3. **Idempotent operations** — every command should be safe to run multiple times
 4. **Platform checks** — always guard Windows-only and WSL-only code paths

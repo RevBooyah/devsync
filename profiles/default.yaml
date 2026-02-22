@@ -1,0 +1,29 @@
+name: default
+description: Standard setup for all AI coding tools
+
+sources:
+  - sources/global-instructions.md
+  - sources/code-style.md
+  - sources/git-conventions.md
+
+targets:
+  claude:
+    global: ~/.claude/CLAUDE.md
+    project: ./CLAUDE.md
+  cursor:
+    project: .cursor/rules/base.md
+  codex:
+    global: ~/.codex/instructions.md
+    project: ./AGENTS.md
+  copilot:
+    project: .github/copilot-instructions.md
+  windsurf:
+    project: .windsurfrules
+
+mcps:
+  required:
+    - filesystem
+    - todoist
+  optional:
+    - windows-mcp
+    - github
